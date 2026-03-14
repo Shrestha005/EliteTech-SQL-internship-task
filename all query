@@ -93,3 +93,14 @@ FROM (
     JOIN Salaries s ON e.emp_id = s.emp_id
 ) ranked
 WHERE rnk = 1;
+
+
+
+#TASK 4
+DROP DATABASE company_db;
+
+USE company_db;
+
+SELECT COUNT(*) FROM Employees;
+SELECT COUNT(*) FROM Departments;
+SELECT COUNT(*) FROM Salaries;

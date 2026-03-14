@@ -1,0 +1,95 @@
+#TASK 1
+create database company_db;
+CREATE TABLE Departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50)
+);
+CREATE TABLE Employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    dept_id INT
+);
+INSERT INTO Departments VALUES
+(1, 'HR'),
+(2, 'Finance'),
+(3, 'IT'),
+(4, 'Marketing');
+INSERT INTO Employees VALUES
+(101, 'Amit', 1),
+(102, 'Riya', 2),
+(103, 'Karan', 3),
+(104, 'Sara', NULL);
+#inner join
+SELECT Employees.emp_name, Departments.dept_name
+FROM Employees
+INNER JOIN Departments
+ON Employees.dept_id = Departments.dept_id;
+
+#left join
+SELECT Employees.emp_name, Departments.dept_name
+FROM Employees
+LEFT JOIN Departments
+ON Employees.dept_id = Departments.dept_id;
+
+#right join
+SELECT Employees.emp_name, Departments.dept_name
+FROM Employees
+RIGHT JOIN Departments
+ON Employees.dept_id = Departments.dept_id;
+
+#full join
+SELECT Employees.emp_name, Departments.dept_name
+FROM Employees
+LEFT JOIN Departments
+ON Employees.dept_id = Departments.dept_id
+UNION
+SELECT Employees.emp_name, Departments.dept_name
+FROM Employees
+RIGHT JOIN Departments
+ON Employees.dept_id = Departments.dept_id;
+
+#TASK 2
+CREATE TABLE Salaries (
+    emp_id INT,
+    salary INT,
+    join_year INT
+);
+INSERT INTO Salaries VALUES
+(101, 50000, 2021),
+(102, 60000, 2020),
+(103, 75000, 2019),
+(104, 45000, 2022);
+
+#employee earning above avg salary
+SELECT emp_id, salary
+FROM Salaries
+WHERE salary > (
+    SELECT AVG(salary) FROM Salaries
+);
+
+#rank employees by salaries
+SELECT emp_id, salary,
+RANK() OVER (ORDER BY salary DESC) AS salary_rank
+FROM Salaries;
+
+#cte: Find average salary per department.
+WITH DeptSalary AS (
+    SELECT d.dept_name, AVG(s.salary) AS avg_salary
+    FROM Employees e
+    JOIN Departments d ON e.dept_id = d.dept_id
+    JOIN Salaries s ON e.emp_id = s.emp_id
+    GROUP BY d.dept_name
+)
+
+SELECT * FROM DeptSalary;
+
+#advanced Trend Query: Highest salary in each department
+SELECT dept_name, emp_name, salary
+FROM (
+    SELECT d.dept_name, e.emp_name, s.salary,
+           RANK() OVER (PARTITION BY d.dept_name ORDER BY s.salary DESC) AS rnk
+    FROM Employees e
+    JOIN Departments d ON e.dept_id = d.dept_id
+    JOIN Salaries s ON e.emp_id = s.emp_id
+) ranked
+WHERE rnk = 1;
